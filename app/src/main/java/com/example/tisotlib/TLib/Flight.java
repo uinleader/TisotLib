@@ -1,6 +1,7 @@
 package com.example.tisotlib.TLib;
 
-public class Fly {
+public class Flight {
+    String id;
     String statusCode; //arrival/departure
     String flightCode;
     String provider;
@@ -9,7 +10,8 @@ public class Fly {
     String country;
     String city;
 
-    public Fly(String statusCode, String flightCode, String provider, String estTime, String sheduledTime, String country, String city) {
+    public Flight(String id, String statusCode, String flightCode, String provider, String estTime, String sheduledTime, String country, String city) {
+        this.id = id;
         this.statusCode = statusCode;
         this.flightCode = flightCode;
         this.provider = provider;
@@ -40,4 +42,7 @@ public class Fly {
         return sheduledTime;
     }
 
+    public String getId() {
+        return id;
+    }
 }

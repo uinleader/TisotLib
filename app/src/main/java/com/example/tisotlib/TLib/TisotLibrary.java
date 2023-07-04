@@ -1,10 +1,3 @@
-//
-//  https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&q=2023-07-03T14&filters={%22CHAORD%22:%22A%22}&limit=1000
-//
-//
-
-
-
 package com.example.tisotlib.TLib;
 
 import android.util.Log;
@@ -14,16 +7,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
 public class TisotLibrary {
-    private ArrayList<Fly> arrayList;
-    public ArrayList<Fly> getHourArrivals(Integer _hour, String date) {
+
+    public ArrayList<Flight> getHourArrivals(Integer _hour, String date) {
         JSONObject jsonResponse;
         JSONArray recordsArray;
-        this.arrayList = new ArrayList<>();
+        ArrayList<Flight> arrayList = new ArrayList<>();
         String response = "";
         URL url;
         String hour = Integer.toString(_hour);
@@ -44,7 +39,9 @@ public class TisotLibrary {
                 recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
                 for (int i = 0; i < recordsArray.length(); i++) {
                     JSONObject obj = recordsArray.getJSONObject(i);
-                    this.arrayList.add(new Fly(obj.getString("CHAORD"),
+                    arrayList.add(new Flight(
+                            obj.getString("_id"),
+                            obj.getString("CHAORD"),
                             obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
                             obj.getString("CHOPERD"),
                             obj.getString("CHPTOL"),
@@ -63,10 +60,10 @@ public class TisotLibrary {
         }
     }
 
-    public ArrayList<Fly> getHourDepartures(Integer _hour, String date) {
+    public ArrayList<Flight> getHourDepartures(Integer _hour, String date) {
         JSONObject jsonResponse;
         JSONArray recordsArray;
-        this.arrayList = new ArrayList<>();
+        ArrayList<Flight> arrayList = new ArrayList<>();
         String response = "";
         URL url;
         String hour = Integer.toString(_hour);
@@ -87,7 +84,10 @@ public class TisotLibrary {
                 recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
                 for (int i = 0; i < recordsArray.length(); i++) {
                     JSONObject obj = recordsArray.getJSONObject(i);
-                    this.arrayList.add(new Fly(obj.getString("CHAORD"),
+
+                    arrayList.add(new Flight(
+                            obj.getString("_id"),
+                            obj.getString("CHAORD"),
                             obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
                             obj.getString("CHOPERD"),
                             obj.getString("CHPTOL"),
@@ -105,15 +105,63 @@ public class TisotLibrary {
             throw new RuntimeException(e);
         }
     }
-    public Fly getSpecificFlight(String flightCode, ArrayList<Fly> flightList) {
-        Fly response = null;
-        for (Fly fl : flightList) {
+    public Flight getSpecificFlight(String flightCode, ArrayList<Flight> flightList) {
+        Flight response = null;
+        for (Flight fl : flightList) {
             if (fl.getFlightCode().equals(flightCode)) {
                 Log.d("FLIGHT", "FOUND "+fl.getFlightCode()+" for STRING "+flightCode);
                 response = fl;
             }
         }
         return response;
+    }
+
+    public ArrayList<Flight> updateArrivalsList(ArrayList<Flight> list) {
+        JSONObject jsonResponse;
+        JSONArray recordsArray;
+        ArrayList<Flight> arrayList = new ArrayList<>();
+        String response = "";
+        String request = "https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&filters={%22_id%22:[";
+        for (Flight fl : list) {
+            if (list.indexOf(fl)+1 == list.size()) {
+                request += "\""+fl.getId()+"\"]}";
+            }else {
+                request += "\""+fl.getId()+"\",";
+            }
+        }
+        Log.d("UPDATE", ""+request);
+        try {
+            URL url = new URL(request);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response += line;
+            }
+            try {
+                jsonResponse = new JSONObject(response);
+                recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+                for (int i = 0; i < recordsArray.length(); i++) {
+                    JSONObject obj = recordsArray.getJSONObject(i);
+
+                    arrayList.add(new Flight(
+                            obj.getString("_id"),
+                            obj.getString("CHAORD"),
+                            obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
+                            obj.getString("CHOPERD"),
+                            obj.getString("CHPTOL"),
+                            obj.getString("CHSTOL"),
+                            obj.getString("CHLOC1CH"),
+                            obj.getString("CHLOC1TH")));
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return arrayList;
     }
 }
 
