@@ -63,13 +63,51 @@ public class TisotLibrary {
         }
     }
 
-    //Only needed if you creating more then one list of flights to work properly with search
-    public void updateFlightsList (ArrayList<Fly> flightlist) {
-        this.arrayList = flightlist;
+    public ArrayList<Fly> getHourDepartures(Integer _hour, String date) {
+        JSONObject jsonResponse;
+        JSONArray recordsArray;
+        this.arrayList = new ArrayList<>();
+        String response = "";
+        URL url;
+        String hour = Integer.toString(_hour);
+        try {
+            url = new URL("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5" +
+                    "&q="+date+"T"+hour+
+                    "&filters={%22CHAORD%22:%22D%22}" +
+                    "&limit=1000");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response += line;
+            }
+            reader.close();
+            Log.d("API", ""+response);
+            try {
+                jsonResponse = new JSONObject(response);
+                recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+                for (int i = 0; i < recordsArray.length(); i++) {
+                    JSONObject obj = recordsArray.getJSONObject(i);
+                    this.arrayList.add(new Fly(obj.getString("CHAORD"),
+                            obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
+                            obj.getString("CHOPERD"),
+                            obj.getString("CHPTOL"),
+                            obj.getString("CHSTOL"),
+                            obj.getString("CHLOC1CH"),
+                            obj.getString("CHLOC1TH")));
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            return arrayList;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-    public Fly getSpecificFlight(String flightCode) {
+    public Fly getSpecificFlight(String flightCode, ArrayList<Fly> flightList) {
         Fly response = null;
-        for (Fly fl : this.arrayList) {
+        for (Fly fl : flightList) {
             if (fl.getFlightCode().equals(flightCode)) {
                 Log.d("FLIGHT", "FOUND "+fl.getFlightCode()+" for STRING "+flightCode);
                 response = fl;
