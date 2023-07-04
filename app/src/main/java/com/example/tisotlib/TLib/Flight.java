@@ -9,6 +9,7 @@ public class Flight {
     String sheduledTime;
     String country;
     String city;
+    //String status;
 
     public Flight(String id, String statusCode, String flightCode, String provider, String estTime, String sheduledTime, String country, String city) {
         this.id = id;
@@ -19,7 +20,13 @@ public class Flight {
         this.sheduledTime = sheduledTime;
         this.country = country;
         this.city = city;
+        //this.status = status;
     }
+
+    //public String getStatus() {
+    //    return status;
+    //}
+
     public String getStatusCode() {
         return statusCode;
     }

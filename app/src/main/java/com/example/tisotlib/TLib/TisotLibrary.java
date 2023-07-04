@@ -16,12 +16,16 @@ import java.util.ArrayList;
 public class TisotLibrary {
 
     public ArrayList<Flight> getHourArrivals(Integer _hour, String date) {
+        String hour;
         JSONObject jsonResponse;
-        JSONArray recordsArray;
-        ArrayList<Flight> arrayList = new ArrayList<>();
+        JSONArray JSONrecordsArray;
+        ArrayList<Flight> arrayList;
         String response = "";
         URL url;
-        String hour = Integer.toString(_hour);
+        if (_hour < 10) {
+            hour = "0"+Integer.toString(_hour);
+        }else {
+            hour = Integer.toString(_hour); }
         try {
             url = new URL("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5" +
                     "&q="+date+"T"+hour+
@@ -36,19 +40,10 @@ public class TisotLibrary {
             Log.d("API", ""+response);
             try {
                 jsonResponse = new JSONObject(response);
-                recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
-                for (int i = 0; i < recordsArray.length(); i++) {
-                    JSONObject obj = recordsArray.getJSONObject(i);
-                    arrayList.add(new Flight(
-                            obj.getString("_id"),
-                            obj.getString("CHAORD"),
-                            obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
-                            obj.getString("CHOPERD"),
-                            obj.getString("CHPTOL"),
-                            obj.getString("CHSTOL"),
-                            obj.getString("CHLOC1CH"),
-                            obj.getString("CHLOC1TH")));
-                }
+                Log.d("JSON",""+jsonResponse);
+                JSONrecordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+                Log.d("JSON",""+JSONrecordsArray);
+                arrayList = JSONToArray(JSONrecordsArray);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -60,13 +55,36 @@ public class TisotLibrary {
         }
     }
 
-    public ArrayList<Flight> getHourDepartures(Integer _hour, String date) {
-        JSONObject jsonResponse;
-        JSONArray recordsArray;
+    private ArrayList<Flight> JSONToArray(JSONArray recordsArray) throws JSONException {
         ArrayList<Flight> arrayList = new ArrayList<>();
+        for (int i = 0; i < recordsArray.length(); i++) {
+            JSONObject obj = recordsArray.getJSONObject(i);
+            arrayList.add(new Flight(
+                    obj.getString("_id"),
+                    obj.getString("CHAORD"),
+                    obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
+                    obj.getString("CHOPERD"),
+                    obj.getString("CHPTOL"),
+                    obj.getString("CHSTOL"),
+                    obj.getString("CHLOC1CH"),
+                    obj.getString("CHLOC1TH")
+                    //obj.getString("CHRMINH")
+            ));
+        }
+        return  arrayList;
+    }
+
+    public ArrayList<Flight> getHourDepartures(Integer _hour, String date) {
+        String hour;
+        JSONObject jsonResponse;
+        JSONArray JSONrecordsArray;
+        ArrayList<Flight> arrayList;
         String response = "";
         URL url;
-        String hour = Integer.toString(_hour);
+        if (_hour < 10) {
+            hour = "0"+Integer.toString(_hour);
+        }else {
+            hour = Integer.toString(_hour); }
         try {
             url = new URL("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5" +
                     "&q="+date+"T"+hour+
@@ -81,20 +99,8 @@ public class TisotLibrary {
             Log.d("API", ""+response);
             try {
                 jsonResponse = new JSONObject(response);
-                recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
-                for (int i = 0; i < recordsArray.length(); i++) {
-                    JSONObject obj = recordsArray.getJSONObject(i);
-
-                    arrayList.add(new Flight(
-                            obj.getString("_id"),
-                            obj.getString("CHAORD"),
-                            obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
-                            obj.getString("CHOPERD"),
-                            obj.getString("CHPTOL"),
-                            obj.getString("CHSTOL"),
-                            obj.getString("CHLOC1CH"),
-                            obj.getString("CHLOC1TH")));
-                }
+                JSONrecordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+                arrayList = JSONToArray(JSONrecordsArray);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -118,8 +124,8 @@ public class TisotLibrary {
 
     public ArrayList<Flight> updateArrivalsList(ArrayList<Flight> list) {
         JSONObject jsonResponse;
-        JSONArray recordsArray;
-        ArrayList<Flight> arrayList = new ArrayList<>();
+        JSONArray JSONrecordsArray;
+        ArrayList<Flight> arrayList;
         String response = "";
         String request = "https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&filters={%22_id%22:[";
         for (Flight fl : list) {
@@ -139,20 +145,8 @@ public class TisotLibrary {
             }
             try {
                 jsonResponse = new JSONObject(response);
-                recordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
-                for (int i = 0; i < recordsArray.length(); i++) {
-                    JSONObject obj = recordsArray.getJSONObject(i);
-
-                    arrayList.add(new Flight(
-                            obj.getString("_id"),
-                            obj.getString("CHAORD"),
-                            obj.getString("CHOPER")+" "+obj.getString("CHFLTN"),
-                            obj.getString("CHOPERD"),
-                            obj.getString("CHPTOL"),
-                            obj.getString("CHSTOL"),
-                            obj.getString("CHLOC1CH"),
-                            obj.getString("CHLOC1TH")));
-                }
+                JSONrecordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+                arrayList = JSONToArray(JSONrecordsArray);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
