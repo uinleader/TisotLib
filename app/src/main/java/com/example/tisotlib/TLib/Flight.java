@@ -9,9 +9,9 @@ public class Flight {
     String sheduledTime;
     String country;
     String city;
-    //String status;
+    String status;
 
-    public Flight(String id, String statusCode, String flightCode, String provider, String estTime, String sheduledTime, String country, String city) {
+    public Flight(String id, String statusCode, String flightCode, String provider, String estTime, String sheduledTime, String country, String city, String status) {
         this.id = id;
         this.statusCode = statusCode;
         this.flightCode = flightCode;
@@ -20,12 +20,12 @@ public class Flight {
         this.sheduledTime = sheduledTime;
         this.country = country;
         this.city = city;
-        //this.status = status;
+        this.status = status;
     }
 
-    //public String getStatus() {
-    //    return status;
-    //}
+    public String getStatus() {
+        return status;
+    }
 
     public String getStatusCode() {
         return statusCode;
