@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class TisotLibrary {
+    private final String API_LINK= "https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&limit=10000";
     public ArrayList<Flight> getHourArrivalsFromAPI(Integer _hour, String date) {
         String hour;
         JSONObject jsonResponse;
@@ -28,10 +29,9 @@ public class TisotLibrary {
         }else {
             hour = Integer.toString(_hour); }
         try {
-            url = new URL("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5" +
+            url = new URL(API_LINK +
                     "&q="+date+"T"+hour+
-                    "&filters={%22CHAORD%22:%22A%22}" +
-                    "&limit=10000");
+                    "&filters={%22CHAORD%22:%22A%22}");
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -62,10 +62,9 @@ public class TisotLibrary {
         }else {
             hour = Integer.toString(_hour); }
         try {
-            url = new URL("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5" +
+            url = new URL(API_LINK +
                     "&q="+date+"T"+hour+
-                    "&filters={%22CHAORD%22:%22D%22}" +
-                    "&limit=10000");
+                    "&filters={%22CHAORD%22:%22D%22}");
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -87,7 +86,7 @@ public class TisotLibrary {
             throw new RuntimeException(e);
         }
     }
-    public Flight getSpecificFlightFromList(String flightCode, @NonNull ArrayList<Flight> flightList) {
+    public Flight getFlightByNumberFromList(String flightCode, @NonNull ArrayList<Flight> flightList) {
         Flight response = null;
         for (Flight fl : flightList) {
             if (fl.getFlightCode().equals(flightCode)) {
@@ -102,7 +101,7 @@ public class TisotLibrary {
         JSONArray JSONrecordsArray;
         ArrayList<Flight> arrayList;
         String response = "";
-        String request = "https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&filters={%22_id%22:[";
+        String request = API_LINK+"&filters={%22_id%22:[";
         for (Flight fl : list) {
             if (list.indexOf(fl)+1 == list.size()) {
                 request += "\""+fl.getId()+"\"]}";
@@ -141,7 +140,36 @@ public class TisotLibrary {
         }
         return response;
     }
-    //returning ArrayList of flights with specific flight number (responce is with Arrivals And departures too)
+    //returning ArrayList of flights with specific flight number/country (responce is with Arrivals And departures too)
+    public ArrayList<Flight> getCountryFlightsFromApi (String country) {
+        JSONObject jsonResponse;
+        JSONArray JSONrecordsArray;
+        ArrayList<Flight> arrayList;
+        String response = "";
+        URL url;
+        try {
+            url = new URL(String.format(
+                    API_LINK+"&filters={\"CHLOC1CH\":\"%s\"}", country
+            ));
+            Log.d("COUNTRU",""+url);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response += line;
+            }
+            reader.close();
+            jsonResponse = new JSONObject(response);
+            JSONrecordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+            arrayList = JSONToArray(JSONrecordsArray);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return arrayList;
+    }
     public ArrayList<Flight> getFlightByNumberFromApi(String flightnumber) {
         JSONObject jsonResponse;
         JSONArray JSONrecordsArray;
@@ -149,7 +177,7 @@ public class TisotLibrary {
         String response = "";
         URL url;
         String[] splitArr = flightnumber.split(" ", 0);
-        String apiString = String.format("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&limit=10000" +
+        String apiString = String.format(API_LINK+
                 "&filters={\"CHOPER\":\"%1s\",\"CHFLTN\":\"%2s\"}", splitArr[0], splitArr[1]);
         try {
             url = new URL(apiString);
@@ -173,7 +201,6 @@ public class TisotLibrary {
 
         return arrayList;
     }
-
 
 
 
