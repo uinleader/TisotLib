@@ -86,12 +86,12 @@ public class TisotLibrary {
             throw new RuntimeException(e);
         }
     }
-    public Flight getFlightByNumberFromList(String flightCode, @NonNull ArrayList<Flight> flightList) {
-        Flight response = null;
+    public ArrayList<Flight> getFlightsByPlaneCodeFromList(String flightCode, @NonNull ArrayList<Flight> flightList) {
+        ArrayList<Flight> response = new ArrayList<>();
         for (Flight fl : flightList) {
             if (fl.getFlightCode().equals(flightCode)) {
                 Log.d("FLIGHT", "FOUND "+fl.getFlightCode()+" for STRING "+flightCode);
-                response = fl;
+                response.add(fl);
             }
         }
         return response;
@@ -135,11 +135,26 @@ public class TisotLibrary {
         ArrayList<Flight> response = new ArrayList<>();
         for (Flight fl : list) {
             if (fl.getCountry().equals(country)) {
-                Log.d("COUNTRY", "FOUND id:"+fl.getId());
+                
+                Log.d("COUNTRY", "FOUND id: "+fl.getId());
+                
             }
         }
         return response;
     }
+    
+    public Flight getFlightByIdFromList(String id, ArrayList<Flight> list) {
+        Flight response = null;
+        for (Flight fl : list) {
+            if (fl.getId().equals(id)) {
+                
+                Log.d("ID", "FOUND id: " + fl.getId());
+                response = fl;
+                
+            }
+        }
+        return response;
+    } 
     //returning ArrayList of flights with specific flight number/country (responce is with Arrivals And departures too)
     public ArrayList<Flight> getCountryFlightsFromApi (String country) {
         JSONObject jsonResponse;
@@ -151,7 +166,7 @@ public class TisotLibrary {
             url = new URL(String.format(
                     API_LINK+"&filters={\"CHLOC1CH\":\"%s\"}", country
             ));
-            Log.d("COUNTRU",""+url);
+            //Log.d("COUNTRYAPI",""+url);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -170,7 +185,7 @@ public class TisotLibrary {
         }
         return arrayList;
     }
-    public ArrayList<Flight> getFlightByNumberFromApi(String flightnumber) {
+    public ArrayList<Flight> getFlightsByPlaneCodeFromApi(String flightnumber) {
         JSONObject jsonResponse;
         JSONArray JSONrecordsArray;
         ArrayList<Flight> arrayList;
