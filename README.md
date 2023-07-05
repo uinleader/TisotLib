@@ -11,7 +11,7 @@ TisotLibrary.getHourDepartures is getting Departures for hour of system (getHour
 Only need number of hour itselft in format "HH" and date "YYYY-MM-dd". 
 
 Date/Hour formats example:
-DateTimeFormatter hour = DateTimeFormatter.ofPattern("HH");
+DateTimeFormatter hour = DateTimeFormatter.ofPattern("H");
 DateTimeFormatter date = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 
 
