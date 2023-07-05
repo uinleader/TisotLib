@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class TisotLibrary {
-
     public ArrayList<Flight> getHourArrivalsFromAPI(Integer _hour, String date) {
         String hour;
         JSONObject jsonResponse;
@@ -46,14 +45,11 @@ public class TisotLibrary {
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
-
             return arrayList;
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
     public ArrayList<Flight> getHourDeparturesFromAPI(Integer _hour, String date) {
         String hour;
         JSONObject jsonResponse;
@@ -101,7 +97,6 @@ public class TisotLibrary {
         }
         return response;
     }
-
     public ArrayList<Flight> updateArrivalsList(@NonNull ArrayList<Flight> list) {
         JSONObject jsonResponse;
         JSONArray JSONrecordsArray;
@@ -137,7 +132,6 @@ public class TisotLibrary {
         }
         return arrayList;
     }
-
     public ArrayList<Flight> getCountryFlightsFromList(String country, ArrayList<Flight> list) {
         ArrayList<Flight> response = new ArrayList<>();
         for (Flight fl : list) {
@@ -146,6 +140,38 @@ public class TisotLibrary {
             }
         }
         return response;
+    }
+    //returning ArrayList of flights with specific flight number (responce is with Arrivals And departures too)
+    public ArrayList<Flight> getFlightByNumberFromApi(String flightnumber) {
+        JSONObject jsonResponse;
+        JSONArray JSONrecordsArray;
+        ArrayList<Flight> arrayList;
+        String response = "";
+        URL url;
+        String[] splitArr = flightnumber.split(" ", 0);
+        String apiString = String.format("https://data.gov.il/api/3/action/datastore_search?resource_id=e83f763b-b7d7-479e-b172-ae981ddc6de5&limit=10000" +
+                "&filters={\"CHOPER\":\"%1s\",\"CHFLTN\":\"%2s\"}", splitArr[0], splitArr[1]);
+        try {
+            url = new URL(apiString);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response += line;
+            }
+            reader.close();
+            jsonResponse = new JSONObject(response);
+            JSONrecordsArray = jsonResponse.getJSONObject("result").getJSONArray("records");
+            arrayList = JSONToArray(JSONrecordsArray);
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        return arrayList;
     }
 
 
